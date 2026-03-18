@@ -1,10 +1,10 @@
 
 template <typename T, int BLOCK_SIZE, int ELEMENTS_PER_THREAD>
-__global__ void simple_rolling_mean_kernel(const T* __restrict__  input, T* output, int n, int window) {
+__global__ void rolling_variance_kernel(const T* __restrict__ input, T* output, int n, int window) {
     
     extern __shared__ char smem_raw[];
     T* smem = reinterpret_cast<T*>(smem_raw);
-
+    
     const int tile_size = BLOCK_SIZE * ELEMENTS_PER_THREAD;
     const int tile_start = blockIdx.x * tile_size;
     const int halo = window - 1;
@@ -17,7 +17,8 @@ __global__ void simple_rolling_mean_kernel(const T* __restrict__  input, T* outp
 
     __syncthreads();
 
-    T running_sum = T(0);
+    double running_sum = 0.0;
+    double running_sq_sum = 0.0;
     for (int i = 0; i < ELEMENTS_PER_THREAD; i++) {
         int thread_idx = threadIdx.x * ELEMENTS_PER_THREAD + i;
         int global_idx = tile_start + thread_idx;
@@ -32,23 +33,32 @@ __global__ void simple_rolling_mean_kernel(const T* __restrict__  input, T* outp
         int smem_pos = thread_idx + halo;
 
         if (i == 0 || global_idx == window - 1) {
-            T sum = T(0);
+            double sum = 0.0;
+            double sq_sum = 0.0;
             int smem_start = thread_idx;
             for (int j = 0; j < window; j++) {
-                sum += smem[smem_start + j];
+                double val = static_cast<double>(smem[smem_start + j]);
+                sum += val;
+                sq_sum += val * val;
             }
             running_sum = sum;
+            running_sq_sum = sq_sum;
         }
         else {
-            running_sum += smem[smem_pos] - smem[smem_pos - window];
+            double entering = static_cast<double>(smem[smem_pos]);
+            double leaving = static_cast<double>(smem[smem_pos - window]);
+            running_sum += entering - leaving;
+            running_sq_sum += entering * entering - leaving * leaving;
         }
 
-        output[global_idx] = running_sum / static_cast<T>(window);
+        double e_x = running_sum / static_cast<double>(window);
+        double e_sq_x = running_sq_sum / static_cast<double>(window);
+        output[global_idx] = static_cast<T>(e_sq_x - e_x * e_x);
     }
 }
 
 template <typename T, int BLOCK_SIZE, int ELEMENTS_PER_THREAD>
-void simple_rolling_mean(const T* input, T* output, int n, int window) {
+void rolling_variance(const T* input, T* output, int n, int window) {
     const int TILE_SIZE = BLOCK_SIZE * ELEMENTS_PER_THREAD;
     const int NUM_BLOCKS = (n + TILE_SIZE - 1) / TILE_SIZE;
 
@@ -62,7 +72,7 @@ void simple_rolling_mean(const T* input, T* output, int n, int window) {
     cudaMemcpy(d_input, input, n * sizeof(T), cudaMemcpyHostToDevice);
     cudaMemset(d_output, 0, n * sizeof(T));
 
-    simple_rolling_mean_kernel<T, BLOCK_SIZE, ELEMENTS_PER_THREAD>
+    rolling_variance_kernel<T, BLOCK_SIZE, ELEMENTS_PER_THREAD>
         <<<NUM_BLOCKS, BLOCK_SIZE, SHARED_BYTES>>>(d_input, d_output, n, window);
 
     cudaMemcpy(output, d_output, n * sizeof(T), cudaMemcpyDeviceToHost);
