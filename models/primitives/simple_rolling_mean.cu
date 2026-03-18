@@ -5,10 +5,10 @@ __global__ void simple_rolling_mean_kernel(const T* __restrict__  input, T* outp
     extern __shared__ char smem_raw[];
     T* smem = reinterpret_cast<T*>(smem_raw);
 
-    const int tile_size = BLOCK_SIZE * ELEMENTS_PER_THREAD;
-    const int tile_start = blockIdx.x * tile_size;
+    const int TILE_SIZE = BLOCK_SIZE * ELEMENTS_PER_THREAD;
+    const int tile_start = blockIdx.x * TILE_SIZE;
     const int halo = window - 1;
-    const int shared_len = tile_size + halo;
+    const int shared_len = TILE_SIZE + halo;
 
     for (int i = threadIdx.x; i < shared_len; i += BLOCK_SIZE) {
         int gid = tile_start - halo + i;
@@ -49,10 +49,10 @@ __global__ void simple_rolling_mean_kernel(const T* __restrict__  input, T* outp
 
 template <typename T, int BLOCK_SIZE, int ELEMENTS_PER_THREAD>
 void simple_rolling_mean(const T* input, T* output, int n, int window) {
-    const int tile_size = BLOCK_SIZE * ELEMENTS_PER_THREAD;
-    const int NUM_BLOCKS = (n + tile_size - 1) / tile_size;
+    const int TILE_SIZE = BLOCK_SIZE * ELEMENTS_PER_THREAD;
+    const int NUM_BLOCKS = (n + TILE_SIZE - 1) / TILE_SIZE;
 
-    const int SHARED_BYTES = (tile_size + window - 1) * sizeof(T);
+    const int SHARED_BYTES = (TILE_SIZE + window - 1) * sizeof(T);
 
     T* d_input;
     T* d_output;
@@ -62,7 +62,8 @@ void simple_rolling_mean(const T* input, T* output, int n, int window) {
     cudaMemcpy(d_input, input, n * sizeof(T), cudaMemcpyHostToDevice);
     cudaMemset(d_output, 0, n * sizeof(T));
 
-    simple_rolling_mean_kernel<T, BLOCK_SIZE, ELEMENTS_PER_THREAD><<<NUM_BLOCKS, BLOCK_SIZE, SHARED_BYTES>>>(d_input, d_output, n, window);
+    simple_rolling_mean_kernel<T, BLOCK_SIZE, ELEMENTS_PER_THREAD>
+        <<<NUM_BLOCKS, BLOCK_SIZE, SHARED_BYTES>>>(d_input, d_output, n, window);
 
     cudaMemcpy(output, d_output, n * sizeof(T), cudaMemcpyDeviceToHost);
 
