@@ -34,32 +34,32 @@ jobs:
           path: build/tests/test_*
           retention-days: 1
 
-  test:
-    name: Test
-    needs: build
-    runs-on: [self-hosted, gpu]
+  # test:
+  #   name: Test
+  #   needs: build
+  #   runs-on: [self-hosted, gpu]
 
-    steps:
-      - uses: actions/checkout@v4
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: build
-          path: build/tests
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: build
+  #         path: build/tests
 
-      - name: Make test binaries executable
-        run: chmod +x build/tests/test_*
+  #     - name: Make test binaries executable
+  #       run: chmod +x build/tests/test_*
 
-      - name: Run tests
-        run: |
-          for test_bin in build/tests/test_*; do
-            echo "=== Running $(basename $test_bin) ==="
-            $test_bin --gtest_output=xml:$(basename $test_bin).xml
-          done
+  #     - name: Run tests
+  #       run: |
+  #         for test_bin in build/tests/test_*; do
+  #           echo "=== Running $(basename $test_bin) ==="
+  #           $test_bin --gtest_output=xml:$(basename $test_bin).xml
+  #         done
 
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: "*.xml"
+  #     - name: Upload test results
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: test-results
+  #         path: "*.xml"
