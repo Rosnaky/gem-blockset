@@ -1,10 +1,11 @@
 
-template <typename T, int BLOCK_SIZE, int ELEMENTS_PER_THREAD>
+template <typename T, int ELEMENTS_PER_THREAD>
 __global__ void rolling_covariance_kernel(const T* __restrict__ input_x, const T* __restrict__ input_y, T* output, int n, int window) {
     
     extern __shared__ char smem_raw[];
     T* smem = reinterpret_cast<T*>(smem_raw);
     
+    const int BLOCK_SIZE = blockDim.x;
     const int tile_size = BLOCK_SIZE * ELEMENTS_PER_THREAD;
     const int tile_start = blockIdx.x * tile_size;
     const int halo = window - 1;
@@ -86,7 +87,7 @@ void rolling_covariance(const T* input_x, const T* input_y, T* output, int n, in
     cudaMemcpy(d_input_y, input_y, n * sizeof(T), cudaMemcpyHostToDevice);
     cudaMemset(d_output, 0, n * sizeof(T));
 
-    rolling_covariance_kernel<T, BLOCK_SIZE, ELEMENTS_PER_THREAD>
+    rolling_covariance_kernel<T, ELEMENTS_PER_THREAD>
         <<<NUM_BLOCKS, BLOCK_SIZE, SHARED_BYTES>>>(d_input_x, d_input_y, d_output, n, window);
 
     cudaMemcpy(output, d_output, n * sizeof(T), cudaMemcpyDeviceToHost);
