@@ -3,7 +3,7 @@
 #include <vector>
 #include <random>
 #include <numeric>
-#include "simple_rolling_mean.cu"
+#include "simple_moving_average.cu"
 
 template <typename T>
 void cpu_rolling_mean(const T* input, T* output, int n, int window) {
@@ -20,7 +20,7 @@ void cpu_rolling_mean(const T* input, T* output, int n, int window) {
     }
 }
 
-class RollingMeanDouble : public ::testing::Test {
+class SimpleMovingAverageDouble : public ::testing::Test {
 protected:
     static constexpr int BLOCK = 256;
     static constexpr int EPT = 4;
@@ -29,7 +29,7 @@ protected:
         int n = static_cast<int>(input.size());
         std::vector<double> gpu_out(n), cpu_out(n);
         cpu_rolling_mean(input.data(), cpu_out.data(), n, window);
-        simple_rolling_mean<double, BLOCK, EPT>(input.data(), gpu_out.data(), n, window);
+        simple_moving_average<double, BLOCK, EPT>(input.data(), gpu_out.data(), n, window);
         for (int i = 0; i < n; i++) {
             if (i < window - 1) {
                 EXPECT_TRUE(std::isnan(gpu_out[i])) << "expected NaN at index " << i;
@@ -40,7 +40,7 @@ protected:
     }
 };
 
-class RollingMeanFloat : public ::testing::Test {
+class SimpleMovingAverageFloat : public ::testing::Test {
 protected:
     static constexpr int BLOCK = 256;
     static constexpr int EPT = 4;
@@ -49,7 +49,7 @@ protected:
         int n = static_cast<int>(input.size());
         std::vector<float> gpu_out(n), cpu_out(n);
         cpu_rolling_mean(input.data(), cpu_out.data(), n, window);
-        simple_rolling_mean<float, BLOCK, EPT>(input.data(), gpu_out.data(), n, window);
+        simple_moving_average<float, BLOCK, EPT>(input.data(), gpu_out.data(), n, window);
         for (int i = 0; i < n; i++) {
             if (i < window - 1) {
                 EXPECT_TRUE(std::isnan(gpu_out[i])) << "expected NaN at index " << i;
@@ -60,10 +60,10 @@ protected:
     }
 };
 
-TEST_F(RollingMeanDouble, HandVerifiedSmallArray) {
+TEST_F(SimpleMovingAverageDouble, HandVerifiedSmallArray) {
     double input[] = {10, 20, 30, 40, 50, 60, 70, 80};
     double output[8];
-    simple_rolling_mean<double, BLOCK, EPT>(input, output, 8, 3);
+    simple_moving_average<double, BLOCK, EPT>(input, output, 8, 3);
 
     EXPECT_TRUE(std::isnan(output[0]));
     EXPECT_TRUE(std::isnan(output[1]));
@@ -75,13 +75,13 @@ TEST_F(RollingMeanDouble, HandVerifiedSmallArray) {
     EXPECT_NEAR(output[7], 70.0, 1e-9);
 }
 
-TEST_F(RollingMeanDouble, NanCountMatchesWindowMinusOne) {
+TEST_F(SimpleMovingAverageDouble, NanCountMatchesWindowMinusOne) {
     std::vector<double> input(100);
     std::iota(input.begin(), input.end(), 1.0);
 
     for (int window : {2, 5, 17, 50, 99}) {
         std::vector<double> output(100);
-        simple_rolling_mean<double, BLOCK, EPT>(input.data(), output.data(), 100, window);
+        simple_moving_average<double, BLOCK, EPT>(input.data(), output.data(), 100, window);
 
         int nan_count = 0;
         for (int i = 0; i < 100; i++) {
@@ -91,20 +91,20 @@ TEST_F(RollingMeanDouble, NanCountMatchesWindowMinusOne) {
     }
 }
 
-TEST_F(RollingMeanDouble, WindowEqualsOne) {
+TEST_F(SimpleMovingAverageDouble, WindowEqualsOne) {
     double input[] = {3.14, 2.71, 1.41, 1.73, 0.577};
     double output[5];
-    simple_rolling_mean<double, BLOCK, EPT>(input, output, 5, 1);
+    simple_moving_average<double, BLOCK, EPT>(input, output, 5, 1);
 
     for (int i = 0; i < 5; i++) {
         EXPECT_NEAR(output[i], input[i], 1e-12) << "index " << i;
     }
 }
 
-TEST_F(RollingMeanDouble, WindowEqualsN) {
+TEST_F(SimpleMovingAverageDouble, WindowEqualsN) {
     double input[] = {10, 20, 30, 40, 50};
     double output[5];
-    simple_rolling_mean<double, BLOCK, EPT>(input, output, 5, 5);
+    simple_moving_average<double, BLOCK, EPT>(input, output, 5, 5);
 
     for (int i = 0; i < 4; i++) {
         EXPECT_TRUE(std::isnan(output[i])) << "index " << i;
@@ -112,25 +112,25 @@ TEST_F(RollingMeanDouble, WindowEqualsN) {
     EXPECT_NEAR(output[4], 30.0, 1e-9);
 }
 
-TEST_F(RollingMeanDouble, SingleElement) {
+TEST_F(SimpleMovingAverageDouble, SingleElement) {
     double input[] = {42.0};
     double output[1];
-    simple_rolling_mean<double, BLOCK, EPT>(input, output, 1, 1);
+    simple_moving_average<double, BLOCK, EPT>(input, output, 1, 1);
 
     EXPECT_NEAR(output[0], 42.0, 1e-12);
 }
 
-TEST_F(RollingMeanDouble, ConstantInput) {
+TEST_F(SimpleMovingAverageDouble, ConstantInput) {
     std::vector<double> input(500, 7.77);
     std::vector<double> output(500);
-    simple_rolling_mean<double, BLOCK, EPT>(input.data(), output.data(), 500, 25);
+    simple_moving_average<double, BLOCK, EPT>(input.data(), output.data(), 500, 25);
 
     for (int i = 24; i < 500; i++) {
         EXPECT_NEAR(output[i], 7.77, 1e-9) << "index " << i;
     }
 }
 
-TEST_F(RollingMeanDouble, CpuReferenceRandom) {
+TEST_F(SimpleMovingAverageDouble, CpuReferenceRandom) {
     std::mt19937 rng(42);
     std::uniform_real_distribution<double> dist(50.0, 200.0);
 
@@ -142,7 +142,7 @@ TEST_F(RollingMeanDouble, CpuReferenceRandom) {
     run_and_compare(input, window);
 }
 
-TEST_F(RollingMeanDouble, TileBoundaryExact) {
+TEST_F(SimpleMovingAverageDouble, TileBoundaryExact) {
     const int tile_size = BLOCK * EPT;
     const int n = tile_size * 3;
     const int window = 30;
@@ -154,7 +154,7 @@ TEST_F(RollingMeanDouble, TileBoundaryExact) {
 
     std::vector<double> gpu_out(n), cpu_out(n);
     cpu_rolling_mean(input.data(), cpu_out.data(), n, window);
-    simple_rolling_mean<double, BLOCK, EPT>(input.data(), gpu_out.data(), n, window);
+    simple_moving_average<double, BLOCK, EPT>(input.data(), gpu_out.data(), n, window);
 
     for (int boundary : {tile_size, tile_size * 2}) {
         for (int offset = -10; offset <= 10; offset++) {
@@ -166,7 +166,7 @@ TEST_F(RollingMeanDouble, TileBoundaryExact) {
     }
 }
 
-TEST_F(RollingMeanDouble, NonDivisibleArrayLength) {
+TEST_F(SimpleMovingAverageDouble, NonDivisibleArrayLength) {
     std::mt19937 rng(256);
     std::uniform_real_distribution<double> dist(0.0, 100.0);
 
@@ -178,7 +178,7 @@ TEST_F(RollingMeanDouble, NonDivisibleArrayLength) {
     }
 }
 
-TEST_F(RollingMeanDouble, LargeWindow) {
+TEST_F(SimpleMovingAverageDouble, LargeWindow) {
     const int n = 5000;
     const int window = 500;
     std::mt19937 rng(314);
@@ -190,14 +190,14 @@ TEST_F(RollingMeanDouble, LargeWindow) {
     run_and_compare(input, window, 1e-6);
 }
 
-TEST_F(RollingMeanDouble, MonotonicallyIncreasingInput) {
+TEST_F(SimpleMovingAverageDouble, MonotonicallyIncreasingInput) {
     const int n = 1000;
     const int window = 10;
     std::vector<double> input(n);
     for (int i = 0; i < n; i++) input[i] = static_cast<double>(i);
 
     std::vector<double> output(n);
-    simple_rolling_mean<double, BLOCK, EPT>(input.data(), output.data(), n, window);
+    simple_moving_average<double, BLOCK, EPT>(input.data(), output.data(), n, window);
 
     for (int i = window - 1; i < n; i++) {
         double expected = (i - window + 1 + i) / 2.0;
@@ -205,10 +205,10 @@ TEST_F(RollingMeanDouble, MonotonicallyIncreasingInput) {
     }
 }
 
-TEST_F(RollingMeanFloat, HandVerifiedSmallArray) {
+TEST_F(SimpleMovingAverageFloat, HandVerifiedSmallArray) {
     float input[] = {10, 20, 30, 40, 50, 60, 70, 80};
     float output[8];
-    simple_rolling_mean<float, BLOCK, EPT>(input, output, 8, 3);
+    simple_moving_average<float, BLOCK, EPT>(input, output, 8, 3);
 
     EXPECT_TRUE(std::isnan(output[0]));
     EXPECT_TRUE(std::isnan(output[1]));
@@ -220,7 +220,7 @@ TEST_F(RollingMeanFloat, HandVerifiedSmallArray) {
     EXPECT_NEAR(output[7], 70.0f, 1e-5f);
 }
 
-TEST_F(RollingMeanFloat, CpuReferenceRandom) {
+TEST_F(SimpleMovingAverageFloat, CpuReferenceRandom) {
     std::mt19937 rng(99);
     std::uniform_real_distribution<float> dist(0.0f, 1000.0f);
 
@@ -232,7 +232,7 @@ TEST_F(RollingMeanFloat, CpuReferenceRandom) {
     run_and_compare(input, window, 0.1f);
 }
 
-TEST_F(RollingMeanFloat, LargeWindowPrecisionDrift) {
+TEST_F(SimpleMovingAverageFloat, LargeWindowPrecisionDrift) {
     std::mt19937 rng(55);
     std::uniform_real_distribution<float> dist(100.0f, 10000.0f);
 
@@ -244,10 +244,10 @@ TEST_F(RollingMeanFloat, LargeWindowPrecisionDrift) {
     run_and_compare(input, window, 1.0f);
 }
 
-TEST_F(RollingMeanFloat, WindowEqualsOne) {
+TEST_F(SimpleMovingAverageFloat, WindowEqualsOne) {
     float input[] = {1.5f, 2.5f, 3.5f};
     float output[3];
-    simple_rolling_mean<float, BLOCK, EPT>(input, output, 3, 1);
+    simple_moving_average<float, BLOCK, EPT>(input, output, 3, 1);
 
     for (int i = 0; i < 3; i++) {
         EXPECT_NEAR(output[i], input[i], 1e-6f);

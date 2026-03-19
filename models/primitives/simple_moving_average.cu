@@ -1,6 +1,6 @@
 
 template <typename T, int BLOCK_SIZE, int ELEMENTS_PER_THREAD>
-__global__ void simple_rolling_mean_kernel(const T* __restrict__  input, T* output, int n, int window) {
+__global__ void simple_moving_average_kernel(const T* __restrict__  input, T* output, int n, int window) {
     
     extern __shared__ char smem_raw[];
     T* smem = reinterpret_cast<T*>(smem_raw);
@@ -48,7 +48,7 @@ __global__ void simple_rolling_mean_kernel(const T* __restrict__  input, T* outp
 }
 
 template <typename T, int BLOCK_SIZE, int ELEMENTS_PER_THREAD>
-void simple_rolling_mean(const T* input, T* output, int n, int window) {
+void simple_moving_average(const T* input, T* output, int n, int window) {
     const int TILE_SIZE = BLOCK_SIZE * ELEMENTS_PER_THREAD;
     const int NUM_BLOCKS = (n + TILE_SIZE - 1) / TILE_SIZE;
 
@@ -62,7 +62,7 @@ void simple_rolling_mean(const T* input, T* output, int n, int window) {
     cudaMemcpy(d_input, input, n * sizeof(T), cudaMemcpyHostToDevice);
     cudaMemset(d_output, 0, n * sizeof(T));
 
-    simple_rolling_mean_kernel<T, BLOCK_SIZE, ELEMENTS_PER_THREAD>
+    simple_moving_average_kernel<T, BLOCK_SIZE, ELEMENTS_PER_THREAD>
         <<<NUM_BLOCKS, BLOCK_SIZE, SHARED_BYTES>>>(d_input, d_output, n, window);
 
     cudaMemcpy(output, d_output, n * sizeof(T), cudaMemcpyDeviceToHost);
