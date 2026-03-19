@@ -70,7 +70,7 @@ __global__ void rolling_covariance_kernel(const T* __restrict__ input_x, const T
     }
 }
 
-template <typename T, int BLOCK_SIZE, int ELEMENTS_PER_THREAD>
+template <typename T, int BLOCK_SIZE = 256, int ELEMENTS_PER_THREAD = 4>
 void rolling_covariance(const T* input_x, const T* input_y, T* output, int n, int window) {
     const int TILE_SIZE = BLOCK_SIZE * ELEMENTS_PER_THREAD;
     const int NUM_BLOCKS = (n + TILE_SIZE - 1) / TILE_SIZE;

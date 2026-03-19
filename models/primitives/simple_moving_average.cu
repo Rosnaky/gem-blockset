@@ -48,7 +48,7 @@ __global__ void simple_moving_average_kernel(const T* __restrict__  input, T* ou
     }
 }
 
-template <typename T, int BLOCK_SIZE, int ELEMENTS_PER_THREAD>
+template <typename T, int BLOCK_SIZE = 256, int ELEMENTS_PER_THREAD = 4>
 void simple_moving_average(const T* input, T* output, int n, int window) {
     const int TILE_SIZE = BLOCK_SIZE * ELEMENTS_PER_THREAD;
     const int NUM_BLOCKS = (n + TILE_SIZE - 1) / TILE_SIZE;

@@ -14,7 +14,7 @@ __global__ void exponential_moving_average_kernel(const T* __restrict__  input, 
     }
 }
 
-template <typename T, int BLOCK_SIZE>
+template <typename T, int BLOCK_SIZE = 256>
 void exponential_moving_average(const T* input, T* output, int num_symbols, int n, T alpha) {
     const int NUM_BLOCKS = (num_symbols + BLOCK_SIZE - 1) / BLOCK_SIZE;
     

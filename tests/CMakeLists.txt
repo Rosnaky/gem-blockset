@@ -9,6 +9,7 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
 
     target_include_directories(${TEST_NAME} PRIVATE
         ${PROJECT_SOURCE_DIR}/models/primitives
+        ${PROJECT_SOURCE_DIR}/models/composites
     )
 
     target_link_libraries(${TEST_NAME}
