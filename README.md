@@ -16,3 +16,4 @@ Blocks can be found in the `models/` directory. They are separated into folders 
 
 - `primitives/`: Contain core math blocks
 - `composites/`: Application agnostic blocks that is simply composed of primitives
+- `estimators/`: Blocks that produce statistically significant conclusions, composed with composites and primitives 
