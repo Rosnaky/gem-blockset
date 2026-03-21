@@ -1,6 +1,7 @@
 #pragma once
 
 struct Sqrt { template<typename T> __device__ T operator()(T a) { return static_cast<T>(sqrt((double)a)); } };
+struct Log { template<typename T> __device__ T operator()(T a) { return static_cast<T>(log((double)a)); } };
 
 template <typename T, typename Func, int BLOCK_SIZE = 256, int ELEMENTS_PER_THREAD = 4>
 __global__ void elementwise_unary_kernel(const T* __restrict__ input, T* output, int n, Func f) {

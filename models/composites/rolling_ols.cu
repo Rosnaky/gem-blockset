@@ -2,6 +2,8 @@
 * Ordinary least squares
 */
 
+#pragma once
+
 #include "elementwise_divide.cu"
 #include "elementwise_multiply.cu"
 #include "elementwise_subtract.cu"

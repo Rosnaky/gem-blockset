@@ -1,3 +1,4 @@
+#pragma once
 
 template <typename T>
 __global__ void exponential_moving_average_kernel(const T* __restrict__  input, T* __restrict__ output, int num_symbols, int n, T alpha) {

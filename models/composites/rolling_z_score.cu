@@ -1,3 +1,5 @@
+#pragma once
+
 #include "simple_moving_average.cu"
 #include "rolling_variance.cu"
 #include "elementwise_sqrt.cu"

@@ -1,3 +1,4 @@
+#pragma once
 
 template <typename T, int ELEMENTS_PER_THREAD>
 __global__ void rolling_covariance_kernel(const T* __restrict__ input_x, const T* __restrict__ input_y, T* output, int n, int window) {

@@ -1,3 +1,4 @@
+#pragma once
 
 template <typename T, int ELEMENTS_PER_THREAD>
 __global__ void log_return_kernel(const T* __restrict__ input, T* __restrict__ output, int n) {

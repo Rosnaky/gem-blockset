@@ -11,6 +11,7 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
         ${PROJECT_SOURCE_DIR}/models/abstract_primitives
         ${PROJECT_SOURCE_DIR}/models/primitives
         ${PROJECT_SOURCE_DIR}/models/composites
+        ${PROJECT_SOURCE_DIR}/models/estimators
     )
 
     target_link_libraries(${TEST_NAME}

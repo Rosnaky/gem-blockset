@@ -1,4 +1,3 @@
-#pragma once
 
 template <typename T, int BLOCK_SIZE = 256, int ELEMENTS_PER_THREAD = 4>
 void difference(const T* input, T* output, int n);
@@ -8,6 +7,9 @@ void elementwise_add(const T* a, const T* b, T* output, int n);
 
 template <typename T, int BLOCK_SIZE = 256, int ELEMENTS_PER_THREAD = 4>
 void elementwise_divide(const T* a, const T* b, T* output, int n);
+
+template <typename T, int BLOCK_SIZE = 256, int ELEMENTS_PER_THREAD = 4>
+void elementwise_ln(const T* input, T* output, int n);
 
 template <typename T, int BLOCK_SIZE = 256, int ELEMENTS_PER_THREAD = 4>
 void elementwise_multiply(const T* a, const T* b, T* output, int n);
@@ -23,6 +25,12 @@ void exponential_moving_average(const T* input, T* output, int num_symbols, int 
 
 template <typename T, int BLOCK_SIZE = 256, int ELEMENTS_PER_THREAD = 4>
 void log_return(const T* input, T* output, int n);
+
+template <typename T, int BLOCK_SIZE = 256, int ELEMENTS_PER_THREAD = 4>
+void offset(const T* input, T* output, int n, double offset);
+
+template <typename T, int BLOCK_SIZE = 256, int ELEMENTS_PER_THREAD = 4>
+void power(const T* input, T* output, int n, double exponent);
 
 template <typename T, int BLOCK_SIZE = 256, int ELEMENTS_PER_THREAD = 4>
 void rolling_covariance(const T* input_x, const T* input_y, T* output, int n, int window);
