@@ -8,6 +8,7 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
     add_executable(${TEST_NAME} ${TEST_SOURCE})
 
     target_include_directories(${TEST_NAME} PRIVATE
+        ${PROJECT_SOURCE_DIR}/models/abstract_primitives
         ${PROJECT_SOURCE_DIR}/models/primitives
         ${PROJECT_SOURCE_DIR}/models/composites
     )
