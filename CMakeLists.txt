@@ -8,6 +8,10 @@ set(CMAKE_CUDA_ARCHITECTURES 75 80 86 89 90)
 add_library(gem_blockset_headers INTERFACE)
 target_include_directories(gem_blockset_headers INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/models>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/models/abstract_primitives>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/models/primitives>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/models/composites>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/models/estimators>
     $<INSTALL_INTERFACE:include>
 )
 
