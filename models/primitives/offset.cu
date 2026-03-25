@@ -5,8 +5,7 @@
 template <typename T, int BLOCK_SIZE = 256, int ELEMENTS_PER_THREAD = 4>
 void offset(const T* input, T* output, int n, double offset) {
     const int TILE_SIZE = BLOCK_SIZE * ELEMENTS_PER_THREAD;
-    const int NUM_BLOCKS = (n + TILE_SIZE - 1) / TILE_SIZE;
-
+    
     T* d_input;
     T* d_output;
     cudaMalloc(&d_input, n * sizeof(T));

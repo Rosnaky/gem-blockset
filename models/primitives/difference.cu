@@ -9,7 +9,7 @@ __global__ void difference_kernel(const T* __restrict__ input, T* __restrict__ o
     for (int i = 0; i < ELEMENTS_PER_THREAD; i++) {
         if (gid + i >= n) return;
         if (gid + i == 0) {
-            output[gid + i] = nan("");
+            output[gid + i] = nanf("");
             continue;
         }
         output[gid+i] = input[gid+i] - input[gid+i-1];

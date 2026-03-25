@@ -32,7 +32,7 @@ __global__ void rolling_covariance_kernel(const T* __restrict__ input_x, const T
         if (global_idx >= n) return;
 
         if (global_idx < window - 1) {
-            output[global_idx] = nan("");
+            output[global_idx] = nanf("");
             continue;
         }
 

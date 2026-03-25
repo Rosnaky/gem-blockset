@@ -1,3 +1,6 @@
+/*
+* Warning! Do not include this header. Include the .cu file directly
+*/
 
 template <typename T, int BLOCK_SIZE = 256, int ELEMENTS_PER_THREAD = 4>
 void difference(const T* input, T* output, int n);

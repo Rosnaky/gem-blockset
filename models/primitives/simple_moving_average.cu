@@ -27,7 +27,7 @@ __global__ void simple_moving_average_kernel(const T* __restrict__  input, T* ou
         if (global_idx >= n) return;
 
         if (global_idx < window - 1) {
-            output[global_idx] = nan("");
+            output[global_idx] = nanf("");
             continue;
         }
 

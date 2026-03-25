@@ -28,7 +28,7 @@ __global__ void rolling_variance_kernel(const T* __restrict__ input, T* output, 
         if (global_idx >= n) return;
 
         if (global_idx < window - 1) {
-            output[global_idx] = nan("");
+            output[global_idx] = nanf("");
             continue;
         }
 

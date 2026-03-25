@@ -7,9 +7,9 @@ struct Div {
     template<typename T> __device__ T operator()(T a, T b) {
         double v = static_cast<double>(a);
         double d = static_cast<double>(b);
-        if (isnan(v) || isnan(d)) return static_cast<T>(nan(""));
+        if (isnan(v) || isnan(d)) return static_cast<T>(nanf(""));
         if (d == 0.0) {
-            if (v == 0.0) return static_cast<T>(nan(""));
+            if (v == 0.0) return static_cast<T>(nanf(""));
             return v > 0.0 ? static_cast<T>(INFINITY) : static_cast<T>(-INFINITY);
         }
         return static_cast<T>(v / d);
