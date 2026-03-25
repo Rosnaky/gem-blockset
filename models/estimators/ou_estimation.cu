@@ -4,15 +4,9 @@
 */
 #pragma once
 
-#include "rolling_ols.cu"
 
-#include "elementwise_add.cu"
-#include "elementwise_divide.cu"
-#include "elementwise_ln.cu"
-#include "elementwise_multiply.cu"
-#include "offset.cu"
-#include "rolling_variance.cu"
-#include "scale.cu"
+#include "composites.h"
+#include "primitives.h"
 
 template <typename T, int BLOCK_SIZE = 256, int ELEMENTS_PER_THREAD = 4>
 void ou_estimation(const T* input, int n, T* speed, T* equilibrium, T* volatility_sq, int window) {

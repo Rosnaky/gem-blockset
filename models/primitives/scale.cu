@@ -1,6 +1,6 @@
 #pragma once
 
-#include "elementwise_constant_binary.cuh"
+#include "abstract_primitives.h"
 
 template <typename T, int BLOCK_SIZE = 256, int ELEMENTS_PER_THREAD = 4>
 void scale(const T* input, T* output, int n, double scalar) {
