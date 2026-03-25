@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    container:
+      image: nvidia/cuda:12.6.0-devel-ubuntu24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y cmake git
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_CUDA_ARCHITECTURES="75;80;86;89;90"
+
+      - name: Build
+        run: cmake --build build -j$(nproc)
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: build/tests/test_*
+          retention-days: 1
+
+  # test:
+  #   name: Test
+  #   needs: build
+  #   runs-on: [self-hosted, gpu]
+
+  #   steps:
+  #     - uses: actions/checkout@v4
+
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: build
+  #         path: build/tests
+
+  #     - name: Make test binaries executable
+  #       run: chmod +x build/tests/test_*
+
+  #     - name: Run tests
+  #       run: |
+  #         for test_bin in build/tests/test_*; do
+  #           echo "=== Running $(basename $test_bin) ==="
+  #           $test_bin --gtest_output=xml:$(basename $test_bin).xml
+  #         done
+
+  #     - name: Upload test results
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: test-results
+  #         path: "*.xml"
