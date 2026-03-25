@@ -4,7 +4,7 @@
 */
 #pragma once
 
-#include "difference.cu"
+#include "primitives.h"
 
 typedef struct {
     double tau;

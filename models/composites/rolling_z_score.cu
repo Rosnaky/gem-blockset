@@ -1,10 +1,6 @@
 #pragma once
 
-#include "simple_moving_average.cu"
-#include "rolling_variance.cu"
-#include "elementwise_sqrt.cu"
-#include "elementwise_subtract.cu"
-#include "elementwise_divide.cu"
+#include "primitives.h"
 
 template <typename T, int BLOCK_SIZE = 256, int ELEMENTS_PER_THREAD = 4>
 void rolling_z_score(const T* input, T* output, int n, int window) {

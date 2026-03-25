@@ -4,12 +4,7 @@
 
 #pragma once
 
-#include "elementwise_divide.cu"
-#include "elementwise_multiply.cu"
-#include "elementwise_subtract.cu"
-#include "rolling_covariance.cu"
-#include "rolling_variance.cu"
-#include "simple_moving_average.cu"
+#include "primitives.h"
 
 template <typename T, int BLOCK_SIZE = 256, int ELEMENTS_PER_THREAD = 4>
 void rolling_ols(const T* input_x, const T* input_y, T* output_alpha, T* output_beta, int n, int window) {
